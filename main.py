@@ -1,13 +1,21 @@
 import os
 from flask import Flask, render_template
+
 app = Flask(__name__)
+
+
+def get_fact():
+    return 'my_fact'
+
+
+def pig_latinize(fact):
+    return 'pig_latin_response', 'pig_latin_url'
 
 
 @app.route('/')
 def home():
-    fact = 'myfact'
-    pig_latin_fact = 'pig latin fact'
-    pig_latin_url = 'pig latin url'
+    fact = get_fact()
+    pig_latin_fact, pig_latin_url = pig_latinize(fact)
     return render_template('home.html', fact=fact, pig_latin_fact=pig_latin_fact,
                            pig_latin_url=pig_latin_url)
 
