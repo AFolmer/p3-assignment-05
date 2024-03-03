@@ -1,11 +1,10 @@
 import os
 from flask import Flask, render_template
-
 app = Flask(__name__)
 
 
 def get_fact():
-    return 'my_fact'
+    return 'fact'
 
 
 def pig_latinize(fact):
