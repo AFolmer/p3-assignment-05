@@ -1,14 +1,41 @@
 import os
+import requests
 from flask import Flask, render_template
+from bs4 import BeautifulSoup
 app = Flask(__name__)
 
 
 def get_fact():
-    return 'fact'
+    response = requests.get("https://random-simile-generator.herokuapp.com/")
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    facts = soup.find_all("h1")
+
+    # Inspecting RSG site shows that simile is second h1 element
+    return facts[1].getText()
 
 
 def pig_latinize(fact):
-    return 'pig_latin_response', 'pig_latin_url'
+    url = "https://pig-latinizer.herokuapp.com/piglatinize"
+    data = {'input_text': fact}
+    try:
+        response = requests.post(url, data=data, allow_redirects=True)
+        response.raise_for_status()
+
+        # Get the redirect url
+        pig_latin_url = response.url
+
+        # Get the body of the page I'm redirected to and filter to simile in pig latin
+        soup = BeautifulSoup(response.content, 'html.parser')
+        body = soup.find('body')
+        pig_latin_response = ''
+        for element in body.find_all(text=True):
+            if element.parent.name not in ['h1', 'h2', 'h3']:
+                pig_latin_response += str(element).strip().replace('"', '')
+        return pig_latin_response, pig_latin_url
+
+    except requests.exceptions.RequestException as e:
+        return f'Error: {e}'
 
 
 @app.route('/')
